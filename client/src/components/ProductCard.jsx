@@ -1,15 +1,23 @@
+
 function ProductCard({ product, showActions, onEdit, onDelete }) {
     return (
         <article className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-            <div className="relative aspect-[4/3] overflow-hidden">
+
+            {/* Product Image */}
+            <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                 <img
                     src={product.image}
                     alt={product.name}
-                    className="h-full w-full object-covert-bold text-indigo-600 shadow">
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                />
+
+                {/* Product Price */}
+                <div className="absolute right-3 top-3 rounded-full bg-white px-3 py-1 text-sm font-bold text-indigo-600 shadow">
                     ₱{Number(product.price).toLocaleString()}
-                </img>
+                </div>
             </div>
 
+            {/* Product Information */}
             <div className="p-5">
                 <h3 className="text-lg font-semibold text-slate-900">
                     {product.name}
@@ -19,6 +27,7 @@ function ProductCard({ product, showActions, onEdit, onDelete }) {
                     {product.description}
                 </p>
 
+                {/* Admin Actions */}
                 {showActions && (
                     <div className="mt-4 flex gap-2">
                         <button
