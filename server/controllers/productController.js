@@ -43,29 +43,41 @@ export const getProduct = async (req, res) => {
 // CREATE PRODUCT
 export const createProduct = async (req, res) => {
     try {
-        const { name, price, description, image } = req.body;
+        const {
+            name,
+            price,
+            category,
+            description,
+            image,
+        } = req.body;
 
         if (
             typeof name !== "string" ||
             !name.trim() ||
-            image == null ||
             typeof image !== "string" ||
             !image.trim() ||
             price === "" ||
             price === null ||
             price === undefined ||
             !Number.isFinite(Number(price)) ||
-            Number(price) < 0
+            Number(price) < 0 ||
+            typeof category !== "string" ||
+            !category.trim()
         ) {
             return res.status(400).json({
-                message: "Valid name, price, and image are required.",
+                message:
+                    "Valid name, price, category, and image are required.",
             });
         }
 
         const product = await Product.create({
             name: name.trim(),
             price: Number(price),
-            description: description || "",
+            category: category.trim(),
+            description:
+                typeof description === "string"
+                    ? description.trim()
+                    : "",
             image,
         });
 
@@ -85,14 +97,43 @@ export const createProduct = async (req, res) => {
 // UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
     try {
-        const { name, price, description, image } = req.body;
+        const {
+            name,
+            price,
+            category,
+            description,
+            image,
+        } = req.body;
+
+        if (
+            typeof name !== "string" ||
+            !name.trim() ||
+            typeof image !== "string" ||
+            !image.trim() ||
+            price === "" ||
+            price === null ||
+            price === undefined ||
+            !Number.isFinite(Number(price)) ||
+            Number(price) < 0 ||
+            typeof category !== "string" ||
+            !category.trim()
+        ) {
+            return res.status(400).json({
+                message:
+                    "Valid name, price, category, and image are required.",
+            });
+        }
 
         const product = await Product.findByIdAndUpdate(
             req.params.id,
             {
-                name,
-                price,
-                description,
+                name: name.trim(),
+                price: Number(price),
+                category: category.trim(),
+                description:
+                    typeof description === "string"
+                        ? description.trim()
+                        : "",
                 image,
             },
             {

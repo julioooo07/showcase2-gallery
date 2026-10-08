@@ -5,6 +5,7 @@ import ImageUpload from "./ImageUpload";
 const emptyForm = {
     name: "",
     price: "",
+    category: "",
     description: "",
     image: "",
 };
@@ -17,18 +18,18 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
     const [form, setForm] = useState(
         editingProduct
             ? {
-                name: editingProduct.name || "",
-                price: editingProduct.price ?? "",
-                description: editingProduct.description || "",
-                image: editingProduct.image || "",
-            }
-            : emptyForm
+                  name: editingProduct.name || "",
+                  price: editingProduct.price ?? "",
+                  category: editingProduct.category || "",
+                  description: editingProduct.description || "",
+                  image: editingProduct.image || "",
+              }
+            : { ...emptyForm }
     );
 
     const [error, setError] = useState("");
     const [saving, setSaving] = useState(false);
 
-    // HANDLE INPUT CHANGES
     const handleChange = (e) => {
         const { name, value } = e.target;
 
@@ -40,17 +41,15 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
         setError("");
     };
 
-    // HANDLE ADD AND UPDATE
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (saving) return;
 
-        const { name, price, description, image } = form;
+        const { name, price, category, description, image } = form;
 
-        // VALIDATION
-        if (!name.trim() || price === "" || !image) {
-            setError("Name, price, and image are required.");
+        if (!name.trim() || price === "" || !image || !category.trim()) {
+            setError("Name, price, category, and image are required.");
             return;
         }
 
@@ -66,14 +65,13 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
             const productData = {
                 name: name.trim(),
                 price: Number(price),
+                category: category.trim(),
                 description: description.trim(),
-                image: image,
+                image,
             };
 
-            // SEND PRODUCT TO APP.JSX
             const success = await onSubmit(productData);
 
-            // CHECK IF BACKEND SAVE WAS SUCCESSFUL
             if (success !== true) {
                 setError(
                     "Product was not confirmed as saved. Please check the backend connection."
@@ -81,18 +79,13 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
                 return;
             }
 
-            // RESET ONLY AFTER SUCCESSFUL SAVE
             setForm({ ...emptyForm });
             setError("");
-
-        } catch (error) {
-            console.error("Product Form Error:", error);
-
+        } catch (err) {
+            console.error("Product Form Error:", err);
             setError(
-                error.message ||
-                "Could not save the product. Please try again."
+                err.message || "Could not save the product. Please try again."
             );
-
         } finally {
             setSaving(false);
         }
@@ -103,25 +96,19 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
             onSubmit={handleSubmit}
             className="space-y-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 lg:sticky lg:top-24"
         >
-
             <h2 className="text-xl font-bold text-slate-900">
                 {editingProduct ? "Edit Product" : "Add Product"}
             </h2>
 
-            {/* IMAGE UPLOAD */}
             <ImageUpload
                 image={form.image}
                 onChange={(image) => {
-                    setForm((prev) => ({
-                        ...prev,
-                        image,
-                    }));
+                    setForm((prev) => ({ ...prev, image }));
                     setError("");
                 }}
                 onError={setError}
             />
 
-            {/* PRODUCT NAME */}
             <input
                 name="name"
                 type="text"
@@ -132,7 +119,6 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
                 disabled={saving}
             />
 
-            {/* PRODUCT PRICE */}
             <input
                 name="price"
                 type="number"
@@ -145,7 +131,16 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
                 disabled={saving}
             />
 
-            {/* DESCRIPTION */}
+            <input
+                name="category"
+                type="text"
+                placeholder="Category (e.g. Electronics, Clothing)"
+                className={inputClass}
+                value={form.category}
+                onChange={handleChange}
+                disabled={saving}
+            />
+
             <textarea
                 name="description"
                 rows="3"
@@ -156,16 +151,13 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
                 disabled={saving}
             />
 
-            {/* ERROR MESSAGE */}
             {error && (
                 <p className="rounded-xl bg-red-50 p-3 text-sm text-red-600">
                     {error}
                 </p>
             )}
 
-            {/* ACTION BUTTONS */}
             <div className="flex gap-2">
-
                 <button
                     type="submit"
                     disabled={saving}
@@ -174,8 +166,8 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
                     {saving
                         ? "Saving..."
                         : editingProduct
-                            ? "Update"
-                            : "Add Product"}
+                        ? "Update"
+                        : "Add Product"}
                 </button>
 
                 {editingProduct && (
@@ -188,7 +180,6 @@ function ProductForm({ editingProduct, onSubmit, onCancel }) {
                         Cancel
                     </button>
                 )}
-
             </div>
         </form>
     );
